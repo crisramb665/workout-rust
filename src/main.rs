@@ -2,7 +2,6 @@ use axum::{
     Json, Router,
     routing::{get, post},
 };
-// use hyper::server::Server;
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
 
@@ -21,8 +20,9 @@ async fn echo(Json(payload): Json<Message>) -> Json<Message> {
 
 #[tokio::main]
 async fn main() {
-    let app = Router::new().route("/", get(health_check)).route("/echo", post(echo));
+    let app = Router::new().route("/health", get(health_check)).route("/echo", post(echo));
     let addr = SocketAddr::from(([127, 0, 0, 1], 4000));
     println!("Listening on http://{}", addr);
-    axum::serve(tokio::net::TcpListener::bind(addr).await.unwrap(), app).await.unwrap();
+    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+    axum::serve(listener, app).await.unwrap();
 }
